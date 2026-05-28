@@ -161,7 +161,7 @@ export const mastra = new Mastra({
     sourcemap: true,
   },
   editor: new MastraEditor({
-    mode: 'code',
+    source: 'code',
     toolProviders: {
       composio: new ComposioToolProvider({ apiKey: '' }),
     },
