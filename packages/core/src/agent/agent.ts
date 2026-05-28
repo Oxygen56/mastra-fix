@@ -117,6 +117,7 @@ import type {
   AgentModelManagerConfig,
   AgentCreateOptions,
   AgentExecuteOnFinishOptions,
+  AgentEditorConfig,
   AgentInstructions,
   AgentMethodType,
   AgentSignal,
@@ -339,6 +340,7 @@ export class Agent<
   #requestContextSchema?: StandardSchemaWithJSON<TRequestContext>;
   #backgroundTasks?: AgentBackgroundConfig;
   #toolPayloadTransform?: ToolPayloadTransformPolicy;
+  #editorConfig?: AgentEditorConfig;
   /**
    * Tracks the active `streamUntilIdle` wrapper per `(threadId|resourceId)`
    * scope on this Agent instance. A new call for the same scope aborts the
@@ -385,7 +387,8 @@ export class Agent<
     this.id = config.id ?? config.name;
     this.source = 'code';
 
-    this.#instructions = config.instructions;
+    this.#editorConfig = config.editor;
+    this.#instructions = config.instructions ?? '';
     this.#description = config.description;
     this.#metadata = config.metadata;
     this.#options = config.options;
@@ -2355,6 +2358,14 @@ export class Agent<
    */
   __resetToOriginalModel() {
     this.model = Array.isArray(this.#originalModel) ? [...this.#originalModel] : this.#originalModel;
+  }
+
+  /**
+   * Returns the editor ownership config for this agent.
+   * @internal
+   */
+  __getEditorConfig() {
+    return this.#editorConfig;
   }
 
   /**
