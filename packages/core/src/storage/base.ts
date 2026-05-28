@@ -232,7 +232,7 @@ export interface MastraCompositeStoreConfig {
  */
 export interface StorageMastraRef {
   getAgentById?: (id: string) => { source?: string; __getEditorConfig?: () => unknown } | undefined;
-  getEditor?: () => { getMode?: () => 'code' | 'db' | undefined } | undefined;
+  getEditor?: () => { getSource?: () => 'code' | 'db' | undefined } | undefined;
 }
 
 export class MastraCompositeStore extends MastraBase {
