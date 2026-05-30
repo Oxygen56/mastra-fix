@@ -6829,6 +6829,15 @@ export class Agent<
     const runId = streamOptions?.runId ?? '';
     const existingSnapshot = await this.#loadAgenticLoopSnapshotOrThrow({ runId, method: 'resumeStream' });
     const snapshotMemoryInfo = this.#getSnapshotMemoryInfo(existingSnapshot);
+
+    if (snapshotMemoryInfo?.threadId) {
+      mergedStreamOptions.memory = {
+        ...(mergedStreamOptions.memory ?? {}),
+        thread: mergedStreamOptions.memory?.thread ?? snapshotMemoryInfo.threadId,
+        resource: mergedStreamOptions.memory?.resource ?? snapshotMemoryInfo.resourceId,
+      };
+    }
+
     await this.#requireAgentExecutionFGA({
       requestContext: mergedStreamOptions.requestContext,
       memory: mergedStreamOptions.memory,
@@ -7083,6 +7092,13 @@ export class Agent<
     return this.resumeStream({ approved: true }, options);
   }
 
+  async approveToolCallAndSubscribe<OUTPUT = undefined>(
+    options: AgentExecutionOptions<OUTPUT> & { runId: string; toolCallId?: string },
+  ): Promise<{ accepted: true; runId: string; toolCallId?: string }> {
+    await this.approveToolCall(options);
+    return { accepted: true, runId: options.runId, toolCallId: options.toolCallId };
+  }
+
   /**
    * Declines a pending tool call and resumes execution.
    * Used when `requireToolApproval` is enabled to prevent the agent from executing a tool call.
@@ -7103,6 +7119,13 @@ export class Agent<
   ): Promise<MastraModelOutput<OUTPUT>> {
     // @ts-expect-error - the types here are wrong
     return this.resumeStream({ approved: false }, options);
+  }
+
+  async declineToolCallAndSubscribe<OUTPUT = undefined>(
+    options: AgentExecutionOptions<OUTPUT> & { runId: string; toolCallId?: string },
+  ): Promise<{ accepted: true; runId: string; toolCallId?: string }> {
+    await this.declineToolCall(options);
+    return { accepted: true, runId: options.runId, toolCallId: options.toolCallId };
   }
 
   /**

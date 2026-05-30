@@ -246,6 +246,10 @@ export const useChat = ({
         }
       }
 
+      if (chunk.type === 'tool-call-approval' || chunk.type === 'tool-call-suspended') {
+        setIsRunning(false);
+      }
+
       if (chunk.type === 'finish' || chunk.type === 'abort' || chunk.type === 'error') {
         setIsRunning(false);
       }
@@ -693,23 +697,24 @@ export const useChat = ({
     setToolCallApprovals(prev => ({ ...prev, [toolCallId]: { status: 'approved' } }));
 
     const agent = baseClient.getAgent(agentId);
+    if (_threadSubscriptionKeyRef.current) {
+      await agent.approveToolCallSubscription({
+        runId: currentRunId,
+        toolCallId,
+        requestContext: _requestContext.current,
+      });
+      return;
+    }
+
     const response = await agent.approveToolCall({
       runId: currentRunId,
       toolCallId,
       requestContext: _requestContext.current,
     });
 
-    if (_threadSubscriptionKeyRef.current) {
-      return;
-    }
-
     await response.processDataStream({
       onChunk: async (chunk: ChunkType) => {
-        // Without this, React might batch intermediate chunks which would break the message reconstruction over time
-
-        setMessages(prev => toUIMessage({ chunk, conversation: prev, metadata: { mode: 'stream' } }));
-
-        void (onChunk ?? _onChunk.current)?.(chunk);
+        await processStreamChunk(chunk, onChunk);
       },
     });
     setIsRunning(false);
@@ -725,23 +730,24 @@ export const useChat = ({
     setIsRunning(true);
     setToolCallApprovals(prev => ({ ...prev, [toolCallId]: { status: 'declined' } }));
     const agent = baseClient.getAgent(agentId);
+    if (_threadSubscriptionKeyRef.current) {
+      await agent.declineToolCallSubscription({
+        runId: currentRunId,
+        toolCallId,
+        requestContext: _requestContext.current,
+      });
+      return;
+    }
+
     const response = await agent.declineToolCall({
       runId: currentRunId,
       toolCallId,
       requestContext: _requestContext.current,
     });
 
-    if (_threadSubscriptionKeyRef.current) {
-      return;
-    }
-
     await response.processDataStream({
       onChunk: async (chunk: ChunkType) => {
-        // Without this, React might batch intermediate chunks which would break the message reconstruction over time
-
-        setMessages(prev => toUIMessage({ chunk, conversation: prev, metadata: { mode: 'stream' } }));
-
-        void (onChunk ?? _onChunk.current)?.(chunk);
+        await processStreamChunk(chunk, onChunk);
       },
     });
     setIsRunning(false);
