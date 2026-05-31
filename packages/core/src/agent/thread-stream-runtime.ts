@@ -74,6 +74,8 @@ type AgentThreadRuntimeState = {
   abortedRunIds: Set<string>;
 };
 
+export type AgentThreadState = 'active' | 'idle';
+
 type SerializableAgentSignal = AgentSignal & Pick<CreatedAgentSignal, 'id' | 'createdAt'>;
 
 type AgentThreadStreamRuntimeEvent =
@@ -129,6 +131,21 @@ export class AgentThreadStreamRuntime {
 
   #serializeSignal(signal: CreatedAgentSignal): SerializableAgentSignal {
     return signal;
+  }
+
+  getThreadState(options: { resourceId?: string; threadId: string }, pubsub?: PubSub): AgentThreadState {
+    const state = this.#getState(pubsub);
+    const key = this.#threadKey(options.resourceId, options.threadId);
+    const activeRunId = state.activeThreadRunIds.get(key);
+    if (!activeRunId) return 'idle';
+
+    const activeRecord = state.threadRunsById.get(activeRunId);
+    if (activeRecord && activeRecord.output.status !== 'running') {
+      state.activeThreadRunIds.delete(key);
+      return 'idle';
+    }
+
+    return 'active';
   }
 
   #publish(pubsub: PubSub | undefined, key: string, event: AgentThreadStreamRuntimeEvent) {
