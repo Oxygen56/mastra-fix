@@ -1,5 +1,16 @@
 # @mastra/playground-ui
 
+## 31.0.0-alpha.5
+
+### Patch Changes
+
+- Improved Checkbox styling with neutral selected states, cleaner focus outlines, and smoother state transitions. ([#17400](https://github.com/mastra-ai/mastra/pull/17400))
+
+- Updated dependencies [[`a18775a`](https://github.com/mastra-ai/mastra/commit/a18775a693172546ee2378d39b67d4e32895b251), [`66d65f5`](https://github.com/mastra-ai/mastra/commit/66d65f58e4b1f862c7f7928866a4426f8de9d583)]:
+  - @mastra/core@1.38.0-alpha.5
+  - @mastra/client-js@1.22.0-alpha.5
+  - @mastra/react@0.4.3-alpha.5
+
 ## 31.0.0-alpha.4
 
 ### Patch Changes

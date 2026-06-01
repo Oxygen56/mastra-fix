@@ -1,5 +1,34 @@
 # @mastra/server
 
+## 1.38.0-alpha.5
+
+### Minor Changes
+
+- Added a `PATCH /tool-providers/:providerId/connections/:connectionId` endpoint and matching client SDK method so authors can rename a connection's display label after creation. ([#17249](https://github.com/mastra-ai/mastra/pull/17249))
+
+  **Rename a connection from the client SDK**
+
+  ```ts
+  import { MastraClient } from '@mastra/client-js';
+
+  const client = new MastraClient({ baseUrl: '…' });
+
+  await client.getToolProvider('composio').updateConnection('auth_abc', {
+    label: 'Work inbox',
+  });
+  ```
+
+  Pass `label: null` (or an empty string) to clear the existing label. Labels are 1–32 characters and accept letters, digits, spaces, underscores, and hyphens (`[A-Za-z0-9 _-]+`).
+
+  **Ownership enforced server-side**
+
+  Non-owners get a 403 unless they hold `tool-providers:admin`. Shared connections are reachable by every author. The label is stored on the connection row itself, so the rename flows to every agent that pins the connection — no per-agent edit needed.
+
+### Patch Changes
+
+- Updated dependencies [[`a18775a`](https://github.com/mastra-ai/mastra/commit/a18775a693172546ee2378d39b67d4e32895b251)]:
+  - @mastra/core@1.38.0-alpha.5
+
 ## 1.38.0-alpha.4
 
 ### Minor Changes

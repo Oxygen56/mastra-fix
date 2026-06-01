@@ -1,5 +1,21 @@
 # @mastra/core
 
+## 1.38.0-alpha.5
+
+### Minor Changes
+
+- Added harness events for session lifecycle updates, mode changes, model changes, and cloned threads. ([#17290](https://github.com/mastra-ai/mastra/pull/17290))
+
+  Users can now subscribe to harness events to observe harness activity.
+
+  **Example**
+
+  ```ts
+  const unsubscribe = harness.subscribe(event => {
+    console.log(event.id, event.type);
+  });
+  ```
+
 ## 1.38.0-alpha.4
 
 ### Minor Changes
